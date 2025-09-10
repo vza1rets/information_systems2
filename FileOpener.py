@@ -3,12 +3,8 @@ typee = input()
 strings = []
 if typee.lower() == 'file':
     path = input('Введите путь к файлу: ')
-    try:
-        with open(f'{path}', encoding='utf-8') as f:
-            strings = f.readlines()
-            strings = [line.rstrip() for line in strings]
-    except:
-        print('Не удалось открыть файл')
+    with open(f'{path}', encoding='utf-8') as f:
+        strings = f.readlines()
+        strings = [line.rstrip() for line in strings]
 elif typee.lower() == 'string':
-    print('Введите строку')
-    strings.append(input())
+    strings.append('"Дизель"             2025.04.27 66.43         "Газпром Нефть" 10000')
