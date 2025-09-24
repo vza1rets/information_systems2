@@ -1,15 +1,64 @@
-from datetime import datetime
+from datetime import datetime, date
+import shlex
 
 
-def parse_input(input_str):
-        parts = input_str.split('"')
-        date_str = parts[0].strip().split()
-        date_str = str(date_str[0])
-        product_name = parts[1]
-        quantity = int(parts[2])
-        date = datetime.strptime(date_str, "%Y.%m.%d")
-        return f"Дата: {date.strftime('%Y.%m.%d')}, Название: {product_name}, Количество: {quantity}"
+class ExtendedOilPrice:
+    def __init__(self, oil_type: str, datee : date, price: float, supplier : str, volume : float):
+        self.oil_type = oil_type
+        self.datee = datee
+        self.price = price
+        self.supplier = supplier
+        self.volume = volume
+    def __str__(self):
+        return (f"Тип топлива: {self.oil_type}, Дата: {self.datee.strftime('%Y.%m.%d')}, Цена: "
+                f"{self.price}, Поставщик: {self.supplier}, Объем: {self.volume}")
 
-input_str = '2024.09.01 "Виноград" 150'
+def read_lines_from_file(path):
+    with open(path, encoding="utf-8") as f:
+        return [line.rstrip() for line in f]
 
-print(parse_input(input_str))
+def read_lines_interactive():
+    print("Вводите строки; пустая строка завершит ввод.")
+    lines = []
+    while True:
+        s = input().strip()
+        if not s:
+            break
+        lines.append(s)
+    return lines
+
+def trytoparse_extendedoil(strings) -> ExtendedOilPrice:
+    parts = shlex.split(strings)
+    price = float(parts[2])
+    oil_type = parts[0].strip('"')
+    datee = (datetime.strptime(str(parts[1]), "%Y.%m.%d")).date()
+    supplier = parts[3]
+    volume = float(parts[4])
+    yield ExtendedOilPrice(oil_type, datee, price, supplier, volume)
+
+
+def find_maxprice(strings):
+    maxprice = 0
+    for string in strings:
+        parts = shlex.split(string)
+        if float(parts[2]) > maxprice:
+            maxprice = float(parts[2])
+    print(f'Максимальная цена: {maxprice}')
+
+def main():
+    typee = input('File or string? ').lower()
+    if typee == 'file':
+        strings = read_lines_from_file((input('Путь к файлу: ')))
+    elif typee == 'string':
+        strings = read_lines_interactive()
+    for obj in trytoparse_extendedoil(strings):
+        print(obj)
+    if len(strings) >= 2:
+        find_maxprice(strings)
+
+
+if __name__ == "__main__":
+    main()
+
+
+
