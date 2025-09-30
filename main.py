@@ -41,8 +41,8 @@ def find_maxprice(strings):
     maxprice = 0
     for string in strings:
         parts = shlex.split(string)
-        if float(parts[2]) > maxprice:
-            maxprice = float(parts[2])
+        if float(parts[1]) > maxprice:
+            maxprice = float(parts[1])
     print(f'Максимальная цена: {maxprice}')
 
 def print_menu():
@@ -93,16 +93,6 @@ def show_objects(strings):
     for obj in trytoparse_extendedoil(strings):
         print(obj)
 
-def show_max_price(strings):
-    if len(strings) < 1:
-        print("Нет данных для вычисления.")
-        return
-    mx = find_maxprice(strings)
-    if mx != mx:  # NaN
-        print("Не удалось определить максимальную цену (проверьте данные).")
-    else:
-        print(f"Максимальная цена: {mx}")
-
 def load_from_file(strings):
     path = input("Путь к файлу: ").strip()
     lines = read_lines_from_file(path)
@@ -123,7 +113,7 @@ def main():
         elif choice == "4":
             show_objects(strings)
         elif choice == "5":
-            show_max_price(strings)
+            find_maxprice(strings)
         elif choice == "6":
             load_from_file(strings)
         elif choice == "7":
