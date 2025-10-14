@@ -19,13 +19,17 @@ class Model:
 
     @staticmethod
     def read_lines_from_file(path):
-        with open(path, encoding="utf-8") as f:
-            return [line.rstrip() for line in f]
+        try:
+            with open(path, encoding="utf-8") as f:
+                return [line.rstrip() for line in f], []
+        except FileNotFoundError:
+            return [], [f"Файл не найден: {path}"]
 
     def load_from_file(self, path):
-        lines = self.read_lines_from_file(path)
-        self.strings.extend(lines)
-        return len(lines)
+        lines, errors = self.read_lines_from_file(path)
+        if lines:
+            self.strings.extend(lines)
+        return len(lines), errors
 
     def add_raw(self, s):
         if not s:
@@ -34,29 +38,46 @@ class Model:
         return "Строка добавлена."
 
     def delete_raw(self, raw):
+        error = None
         if not self.strings:
             return "Список строк пуст, удалять нечего."
-        if raw < 0 or raw >= len(self.strings):
-            return "Индекс вне диапазона."
-        removed = self.strings.pop(raw)
-        return f"Удалено: {removed}"
+        try:
+            ind = int(raw)
+            removed = self.strings.pop(ind)
+            return f"Удалено: {removed}", error
+        except Exception as e:
+            error = f"Ошибка - {e}"
+            return "", error
 
     def trytoparse_extendedoil(self):
         result_objects = []
-        for string in self.strings:
-            parts = shlex.split(string)
-            price = float(parts[1])
-            oil_type = parts[0].strip('"')
-            datee = (datetime.strptime(str(parts[2]), "%Y.%m.%d")).date()
-            supplier = parts[3]
-            volume = float(parts[4])
-            result_objects.append(ExtendedOilPrice(oil_type, datee, price, supplier, volume))
-        return result_objects
+        errors = []
+        for idx, string in enumerate(self.strings):
+            try:
+                parts = shlex.split(string)
+                if len(parts) < 5:
+                    raise ValueError("Недостаточно элементов для парса")
+                if len(parts) > 5:
+                    raise ValueError("Количество элементов больше, чем нужно")
+                price = float(parts[1])
+                oil_type = parts[0].strip('"')
+                datee = datetime.strptime(str(parts[2]), "%Y.%m.%d").date()
+                supplier = parts[3]
+                volume = float(parts[4])
+                result_objects.append(ExtendedOilPrice(oil_type, datee, price, supplier, volume))
+            except Exception as e:
+                errors.append(f"Ошибка в строке {idx}: {string} — {e}")
+        return result_objects, errors
 
     def find_maxprice(self):
         maxprice = 0
-        for string in self.strings:
-            parts = shlex.split(string)
-            if float(parts[1]) > maxprice:
-                maxprice = float(parts[1])
-        return maxprice
+        errors = []
+        for idx, string in enumerate(self.strings):
+            try:
+                parts = shlex.split(string)
+                price = float(parts[1])
+                if price > maxprice:
+                    maxprice = price
+            except Exception as e:
+                errors.append(f"Ошибка в строке {idx}: {string!r} — {e}")
+        return maxprice, errors
