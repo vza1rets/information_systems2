@@ -1,5 +1,4 @@
-
-    print('File or string?')
+    print ('File or string?')
     typee = input()
     strings = []
     if typee.lower() == 'file':
