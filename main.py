@@ -26,7 +26,7 @@ class View:
     def main(self):
         while True:
             self.print_menu()
-            choice = input("Выберите пункт (1-8): ").strip()
+            choice = input("Выберите пункт (1-7): ").strip()
             if choice == "1":
                 s = input("Введите строку формата: \"Тип\" YYYY.MM.DD price \"supplier\" volume\n> ").strip()
                 print(self.model.add_raw(s))
